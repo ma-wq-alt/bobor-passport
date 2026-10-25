@@ -60,7 +60,6 @@
 <body>
 <div class="wrap">
 
-  <!-- ЛОГИН -->
   <div class="card" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
     <input type="email" id="log-email" placeholder="Email">
@@ -69,7 +68,6 @@
     <button class="btn" style="width:100%" onclick="doLogin()">Войти</button>
   </div>
 
-  <!-- АНКЕТА -->
   <div class="card" id="view-form">
     <h2 style="margin-top:0; text-align:center;">Анкета BOBOR-ID</h2>
     <div class="form-avatar" onclick="document.getElementById('form-photo-input').click()">
@@ -87,7 +85,6 @@
     <button class="btn3" style="width:100%; margin-top:5px" onclick="logout()">Выйти</button>
   </div>
 
-  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
   <div id="main-ui" style="display:none">
     <nav>
       <button id="tab-passport" class="on" onclick="switchTab('passport')">Паспорт</button>
@@ -101,7 +98,6 @@
       </div>
     </nav>
 
-    <!-- ПАСПОРТ -->
     <div id="view-passport">
       <div class="passport">
         <div class="hologram"></div>
@@ -127,7 +123,6 @@
       </div>
     </div>
 
-    <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -148,7 +143,6 @@
       </div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -159,7 +153,6 @@
       </div>
     </div>
 
-    <!-- АДМИНКА -->
     <div id="view-admin" style="display:none">
       <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
       <div id="admin-users-list"></div>
@@ -172,10 +165,14 @@ let currentUser = null;
 let isAdmin = false;
 let tempPhotoBase64 = '';
 
-// АВТО-ВХОД
+// Если есть сохраненные данные, скрываем экран логина СРАЗУ, чтобы не мелькал
 let savedEmail = localStorage.getItem('id_email');
 let savedSecret = localStorage.getItem('id_secret');
-let savedPass = localStorage.getItem('id_pass'); // Сохраняем и пароль для авто-входа
+let savedPass = localStorage.getItem('id_pass');
+
+if (savedEmail && savedSecret && savedPass) {
+  document.getElementById('login-screen').style.display = 'none';
+}
 
 window.onload = () => {
   if (savedEmail && savedSecret && savedPass) {
@@ -195,7 +192,7 @@ function switchTab(t) {
   });
   
   if (t === 'permits') loadPermitsData();
-  if (t === 'admin') loadAdminUsers(); // Явный вызов
+  if (t === 'admin') loadAdminUsers(); 
 }
 
 function doLogin(autoLogin = false) {
@@ -239,6 +236,11 @@ function doLogin(autoLogin = false) {
       localStorage.removeItem('id_email');
       localStorage.removeItem('id_pass');
       localStorage.removeItem('id_secret');
+      document.getElementById('login-screen').style.display = 'block';
+    }
+  }).catch(() => {
+    if(autoLogin) {
+      document.getElementById('login-screen').style.display = 'block';
     }
   });
 }
@@ -414,7 +416,6 @@ function revokePermit(id) {
 }
 
 function loadAdminUsers() {
-  console.log("Загрузка админки...");
   fetch('/api/admin_all_users').then(r => r.json()).then(users => {
     const list = document.getElementById('admin-users-list');
     list.innerHTML = '';
@@ -455,7 +456,6 @@ function loadAdminUsers() {
       list.appendChild(div);
     });
   }).catch(e => {
-    console.error(e);
     document.getElementById('admin-users-list').innerHTML = '<div class="muted" style="color:red">Ошибка загрузки</div>';
   });
 }
