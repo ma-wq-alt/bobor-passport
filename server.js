@@ -13,8 +13,9 @@ const TURSO_TOKEN = process.env.TURSO_TOKEN;
 const db = (TURSO_URL && TURSO_TOKEN) ? createClient({ url: TURSO_URL, authToken: TURSO_TOKEN }) : null;
 
 async function initDB() {
-  if (!db) return;
+  if (!db) return console.log('⚠️ НЕТ БАЗЫ');
   try {
+    // Безопасно создаем таблицу паспортов
     await db.execute(`
       CREATE TABLE IF NOT EXISTS passport_data (
         email TEXT PRIMARY KEY, 
@@ -25,10 +26,13 @@ async function initDB() {
         last_photo_update TEXT
       )
     `);
+    
+    // Пытаемся добавить колонки на случай, если таблица старая
     try { await db.execute('ALTER TABLE passport_data ADD COLUMN age INTEGER DEFAULT 0'); } catch(e) {}
     try { await db.execute('ALTER TABLE passport_data ADD COLUMN gender TEXT DEFAULT ""'); } catch(e) {}
     try { await db.execute('ALTER TABLE passport_data ADD COLUMN last_photo_update TEXT'); } catch(e) {}
     
+    // Создаем таблицу пропусков
     await db.execute(`
       CREATE TABLE IF NOT EXISTS permits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -39,8 +43,8 @@ async function initDB() {
         created_at TEXT
       )
     `);
-    console.log('✅ База готова');
-  } catch(e) { console.error(e); }
+    console.log('✅ База BOBOR-ID готова');
+  } catch(e) { console.error('❌ Ошибка базы:', e.message); }
 }
 initDB();
 
@@ -67,10 +71,10 @@ app.post('/api/login', async (req, res) => {
     
     let photo = '', status = 'none', age = 0, gender = '', lastUpdate = null;
     if (p.rows.length > 0) {
-      photo = p.rows[0].photo_base64;
-      status = p.rows[0].status;
-      age = p.rows[0].age;
-      gender = p.rows[0].gender;
+      photo = p.rows[0].photo_base64 || '';
+      status = p.rows[0].status || 'none';
+      age = p.rows[0].age || 0;
+      gender = p.rows[0].gender || '';
       lastUpdate = p.rows[0].last_photo_update;
     }
 
@@ -93,31 +97,33 @@ app.post('/api/login', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-// Анкета (сохранение данных и фото)
 app.post('/api/save_profile', async (req, res) => {
   const { email, photo_base64, age, gender } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
-  
   try {
     const now = new Date().toISOString();
     await db.execute({ 
       sql: `INSERT INTO passport_data (email, photo_base64, status, age, gender, last_photo_update) 
             VALUES (?, ?, 'pending', ?, ?, ?) 
-            ON CONFLICT(email) DO UPDATE SET 
-            photo_base64 = ?, status = 'pending', age = ?, gender = ?, last_photo_update = ?`, 
+            ON CONFLICT(email) DO UPDATE SET photo_base64 = ?, status = 'pending', age = ?, gender = ?, last_photo_update = ?`, 
       args: [email, photo_base64, age, gender, now, photo_base64, age, gender, now] 
     });
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
+app.get('/api/users', async (req, res) => {
+  if (!db) return res.json([]);
+  try {
+    const r = await db.execute('SELECT email, display_name, name, role FROM users');
+    res.json(r.rows);
+  } catch(e) { res.json([]); }
+});
+
 app.get('/api/pending_list', async (req, res) => {
   if (!db) return res.json([]);
   try {
-    const r = await db.execute(`
-      SELECT u.email, u.display_name, u.name, p.photo_base64, p.age, p.gender 
-      FROM passport_data p JOIN users u ON p.email = u.email WHERE p.status = 'pending'
-    `);
+    const r = await db.execute(`SELECT u.email, u.display_name, u.name, p.photo_base64, p.age, p.gender FROM passport_data p JOIN users u ON p.email = u.email WHERE p.status = 'pending'`);
     res.json(r.rows);
   } catch(e) { res.json([]); }
 });
@@ -131,13 +137,57 @@ app.post('/api/approve_passport', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// --- ПРОПУСКА (без изменений) ---
-app.get('/api/users', async (req, res) => {
+// --- АДМИНКА ---
+app.get('/api/admin_all_users', async (req, res) => {
   if (!db) return res.json([]);
-  const r = await db.execute('SELECT email, display_name, name, role FROM users');
-  res.json(r.rows);
+  try {
+    const r = await db.execute(`
+      SELECT u.email, u.display_name, u.name, u.pass_code, p.photo_base64, p.status, p.age, p.gender 
+      FROM users u
+      LEFT JOIN passport_data p ON u.email = p.email
+    `);
+    res.json(r.rows);
+  } catch(e) { 
+    console.error('Ошибка админки:', e);
+    res.json([]); 
+  }
 });
 
+app.post('/api/admin/revoke_id', async (req, res) => {
+  const { targetEmail, adminPass } = req.body;
+  if (!db || adminPass !== '1495') return res.status(401).json({ error: 'Нет доступа' });
+  try {
+    await db.execute({ sql: "UPDATE passport_data SET status = 'none', photo_base64 = NULL WHERE email = ?", args: [targetEmail] });
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/admin_edit_user', async (req, res) => {
+  const { targetEmail, newName, newAge, newGender, newPhoto, adminPass } = req.body;
+  if (!db || adminPass !== '1495') return res.status(401).json({ error: 'Нет доступа' });
+  try {
+    if (newName) {
+      await db.execute({ sql: 'UPDATE users SET display_name = ? WHERE email = ?', args: [newName, targetEmail] });
+    }
+    if (newAge || newGender || newPhoto) {
+      const current = await db.execute({ sql: 'SELECT * FROM passport_data WHERE email = ?', args: [targetEmail] });
+      const photo = newPhoto || (current.rows.length > 0 ? current.rows[0].photo_base64 : null);
+      const age = newAge || (current.rows.length > 0 ? current.rows[0].age : 0);
+      const gender = newGender || (current.rows.length > 0 ? current.rows[0].gender : '');
+      const status = current.rows.length > 0 ? current.rows[0].status : 'approved';
+      
+      await db.execute({ 
+        sql: `INSERT INTO passport_data (email, photo_base64, status, age, gender) 
+              VALUES (?, ?, ?, ?, ?) 
+              ON CONFLICT(email) DO UPDATE SET photo_base64 = ?, age = ?, gender = ?`,
+        args: [targetEmail, photo, status, age, gender, photo, age, gender]
+      });
+    }
+    res.json({ success: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// --- ПРОПУСКА ---
 app.post('/api/permits/request', async (req, res) => {
   const { from_email, to_email } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
