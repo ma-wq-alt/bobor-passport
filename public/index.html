@@ -43,11 +43,11 @@
   .value { font-size: 14px; font-weight: bold; word-break: break-all; }
   .value-small { font-size: 12px; font-weight: bold; }
   
-  /* Блок с подписями и символом */
-  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: flex-end; gap: 10px; }
+  /* Контейнер для картинки и подписей */
+  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
   
-  /* Символ теперь большой и находится по центру внизу */
-  .big-logo { width: 90px; height: 90px; opacity: 0.9; margin-bottom: -10px;}
+  /* Класс для твоей картинки */
+  .my-logo { width: 50px; height: 50px; object-fit: contain; }
   
   .signatures { display: flex; gap: 10px; }
   .sig-box { width: 45px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: #fff;}
@@ -126,17 +126,9 @@
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
           
-          <!-- Блок с печатью и подписями -->
           <div class="signatures-container">
-            <!-- Увеличенный логотип по центру -->
-            <svg class="big-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 0 L61 34 L98 34 L68 56 L79 90 L50 68 L21 90 L32 56 L2 34 L39 34 Z" fill="none" stroke="#000" stroke-width="5"/>
-              <circle cx="50" cy="50" r="26" fill="#e0e0e0" stroke="#000" stroke-width="5"/>
-              <circle cx="40" cy="48" r="6" fill="#000"/>
-              <circle cx="60" cy="48" r="6" fill="#000"/>
-              <polygon points="50,56 46,64 54,64" fill="#000"/>
-              <path d="M40 70 Q50 75 60 70" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
-            </svg>
+            <!-- ТВОЯ КАРТИНКА -->
+            <img class="my-logo" src="https://i.ibb.co/6PZ9Z9x/photo-2026-10-25-17-25-12.jpg" alt="logo">
 
             <div class="signatures">
               <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
@@ -147,7 +139,7 @@
       </div>
     </div>
 
-    <!-- ПРОПУСКА -->
+    <!-- ОСТАЛЬНЫЕ ВКЛАДКИ (без изменений) -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -162,7 +154,6 @@
         <select id="target-user"></select>
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
-
       <div id="admin-permits-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Выдать пропуск (Админ)</h3>
         <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:20px;">
@@ -173,13 +164,11 @@
             <button class="btn3" style="flex:1" onclick="adminGivePermit(8760)">На год</button>
           </div>
         </div>
-
         <h3 style="color:var(--red)">Все активные пропуска</h3>
         <div id="admin-permits-list"></div>
       </div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -190,7 +179,6 @@
       </div>
     </div>
 
-    <!-- АДМИНКА -->
     <div id="view-admin" style="display:none">
       <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
       <div id="admin-users-list"></div>
@@ -199,6 +187,7 @@
 </div>
 
 <script>
+// ... (Скрипт остался точно таким же, я не менял логику, только картинку в HTML)
 let currentUser = null;
 let isAdmin = false;
 let tempPhotoBase64 = '';
