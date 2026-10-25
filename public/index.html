@@ -13,17 +13,19 @@
   input:focus{outline:none;border-color:var(--red)}
   .btn{background:var(--red);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;font-family:inherit}
   .btn2{background:var(--lime);color:#000;border:0;padding:8px 15px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
+  .btn3{background:rgba(255,255,255,0.1);color:#fff;border:0;padding:8px 12px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit}
   
-  nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto}
+  nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto; align-items:center;}
   nav button{background:none;border:0;color:var(--muted);padding:8px 12px;font-size:15px;cursor:pointer;border-radius:8px;white-space:nowrap}
   nav button.on{color:var(--red);font-weight:bold;background:rgba(255,61,0,.1)}
+  
+  .header-actions { display: flex; gap:8px; margin-left: auto; }
+  .header-actions button { padding: 6px 10px; font-size: 12px; }
 
-  /* Анкета */
-  #view-form { text-align: center; }
+  #view-form { text-align: center; display: none; }
   .form-avatar { width: 120px; height: 150px; background: #333; border-radius: 10px; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; border: 2px solid #555; }
   .form-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-  /* ПАСПОРТ BOBOR-ID */
   .passport { background: #F0F0F0; color: #000; width: 100%; min-height: 420px; border-radius: 15px; position: relative; overflow: hidden; font-family: 'Courier New', monospace; display: flex; flex-direction: row; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   @media(max-width: 600px) { .passport { flex-direction: column; } .left-side { width: 100% !important; border-right: none !important; border-bottom: 2px dashed #ccc; } .right-side { width: 100% !important; } }
   
@@ -32,7 +34,6 @@
   .photo-box img { width: 100%; height: 100%; object-fit: cover; }
   .code-box { margin-top: auto; text-align: center; border-top: 2px solid #999; padding-top: 10px; width: 100%; }
   .code { font-size: 24px; font-weight: bold; color: #007BFF; font-family: monospace; letter-spacing: 2px; }
-
   .right-side { width: 60%; padding: 20px; position: relative; box-sizing: border-box; z-index: 2;}
   .header-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-align: center; letter-spacing: 1px; color: #000; }
   .header-sub { text-align: center; font-size: 10px; color: #555; margin-bottom: 20px; text-transform: uppercase; }
@@ -46,18 +47,19 @@
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
   .hologram { position: absolute; top: 0; left: 0; bottom: 0; width: 15px; background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); opacity: 0.3; z-index: 1; }
 
-  /* Пропуска и профиль */
   .pass-card { background: linear-gradient(135deg, #1a1a24 0%, #0B0B0F 100%); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .pass-name { font-weight: bold; font-size: 16px; color: #fff; }
   .pass-time { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .pass-active { color: var(--green); font-weight: bold; font-size: 12px; border: 1px solid var(--green); padding: 2px 8px; border-radius: 6px; }
   .rowline{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
+  
+  .admin-user-card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+  .admin-user-card input { margin-bottom: 5px; padding: 8px; font-size: 13px; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- ЛОГИН -->
   <div class="card" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
     <input type="email" id="log-email" placeholder="Email">
@@ -66,37 +68,37 @@
     <button class="btn" style="width:100%" onclick="doLogin()">Войти</button>
   </div>
 
-  <!-- АНКЕТА (Появляется, если нет данных) -->
-  <div class="card" id="view-form" style="display:none">
-    <h2 style="margin-top:0">Анкета BOBOR-ID</h2>
-    <p style="color:var(--muted);font-size:13px">Заполните данные для создания ID</p>
-    
+  <div class="card" id="view-form">
+    <h2 style="margin-top:0; text-align:center;">Анкета BOBOR-ID</h2>
     <div class="form-avatar" onclick="document.getElementById('form-photo-input').click()">
       <img id="form-photo-preview" src="" style="display:none">
       <span id="form-photo-text">📷 Загрузить</span>
     </div>
     <input type="file" id="form-photo-input" accept="image/*" onchange="previewPhoto(this)">
-
     <input type="number" id="form-age" placeholder="Возраст (лет)">
     <select id="form-gender">
       <option value="">Выберите пол</option>
       <option value="M">Мужской</option>
       <option value="F">Женский</option>
     </select>
-    
     <button class="btn" style="width:100%; margin-top:10px" onclick="saveProfile()">Отправить на проверку</button>
-    <button class="btn" style="width:100%; background:transparent; color:var(--muted); margin-top:5px" onclick="logout()">Выйти</button>
+    <button class="btn3" style="width:100%; margin-top:5px" onclick="logout()">Выйти</button>
   </div>
 
-  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
   <div id="main-ui" style="display:none">
     <nav>
       <button id="tab-passport" class="on" onclick="switchTab('passport')">Паспорт</button>
       <button id="tab-permits" onclick="switchTab('permits')">Пропуска</button>
       <button id="tab-profile" onclick="switchTab('profile')">Профиль</button>
+      <button id="tab-admin" style="display:none; color:var(--lime)" onclick="switchTab('admin')">Админка</button>
+      
+      <!-- Кнопки в углу -->
+      <div class="header-actions">
+        <button class="btn3" onclick="location.reload()">🔄</button>
+        <button class="btn" onclick="logout()">Выйти</button>
+      </div>
     </nav>
 
-    <!-- ПАСПОРТ -->
     <div id="view-passport">
       <div class="passport">
         <div class="hologram"></div>
@@ -107,7 +109,6 @@
         <div class="right-side">
           <div class="header-title">BOBOR-ID</div>
           <div class="header-sub">Government System</div>
-          
           <div class="data-row"><span class="label">Имя / Name</span><span class="value" id="u-name">---</span></div>
           <div class="data-row"><span class="label">Возраст / Age</span><span class="value-small" id="u-age">---</span></div>
           <div class="data-row" style="display:flex; gap:10px;">
@@ -115,7 +116,6 @@
             <div style="flex:1;"><span class="label">Статус</span><span class="value-small" id="u-status" style="color:#FF3D00">---</span></div>
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
-
           <div class="signatures">
             <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
             <div class="sig-box"><span class="checkmark" id="sig-user">✔</span><span class="sig-label">ЮЗЕР</span></div>
@@ -124,7 +124,6 @@
       </div>
     </div>
 
-    <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -139,13 +138,12 @@
         <select id="target-user"></select>
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
-      <div id="admin-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
+      <div id="admin-permits-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Все пропуска (Админ)</h3>
         <div id="admin-permits-list"></div>
       </div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -155,6 +153,11 @@
         <div class="rowline"><span class="muted">Секрет:</span><b id="p-secret">---</b></div>
       </div>
     </div>
+
+    <div id="view-admin" style="display:none">
+      <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
+      <div id="admin-users-list"></div>
+    </div>
   </div>
 </div>
 
@@ -163,20 +166,37 @@ let currentUser = null;
 let isAdmin = false;
 let tempPhotoBase64 = '';
 
+// ПРОВЕРКА СОХРАНЕННОЙ СЕССИИ
+let savedEmail = localStorage.getItem('id_email');
+let savedSecret = localStorage.getItem('id_secret');
+
+window.onload = () => {
+  if (savedEmail && savedSecret) {
+    // Автоматический вход
+    document.getElementById('log-email').value = savedEmail;
+    document.getElementById('log-secret').value = savedSecret;
+    doLogin(true);
+  }
+};
+
 function switchTab(t) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('nav > button').forEach(b => b.classList.remove('on'));
   document.getElementById('tab-'+t).classList.add('on');
-  document.getElementById('view-passport').style.display = t === 'passport' ? 'block' : 'none';
-  document.getElementById('view-permits').style.display = t === 'permits' ? 'block' : 'none';
-  document.getElementById('view-profile').style.display = t === 'profile' ? 'block' : 'none';
+  ['passport','permits','profile','admin'].forEach(v => {
+    const el = document.getElementById('view-'+v);
+    if(el) el.style.display = (v === t) ? 'block' : 'none';
+  });
   if (t === 'permits') loadPermitsData();
+  if (t === 'admin') loadAdminUsers();
 }
 
-function doLogin() {
+function doLogin(autoLogin = false) {
   const email = document.getElementById('log-email').value;
   const password = document.getElementById('log-pass').value;
   const secret = document.getElementById('log-secret').value;
   
+  if(!autoLogin && (!email || !password || !secret)) return alert('Заполните все поля');
+
   fetch('/api/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -185,11 +205,18 @@ function doLogin() {
     if (r.ok) {
       const data = await r.json();
       currentUser = data.user;
-      if (currentUser.role === 'admin') isAdmin = true;
+      
+      // Сохраняем для авто-входа
+      localStorage.setItem('id_email', email);
+      localStorage.setItem('id_secret', secret);
+      
+      if (currentUser.role === 'admin') {
+        isAdmin = true;
+        document.getElementById('tab-admin').style.display = 'block';
+      }
       
       document.getElementById('login-screen').style.display = 'none';
       
-      // Проверяем, заполнена ли анкета (есть ли фото и возраст)
       if (!currentUser.photo || !currentUser.age || !currentUser.gender) {
         document.getElementById('view-form').style.display = 'block';
       } else {
@@ -197,13 +224,16 @@ function doLogin() {
         showMainUI();
       }
     } else {
-      const err = await r.json();
-      alert(err.error || 'Ошибка входа');
+      if(!autoLogin) {
+        const err = await r.json();
+        alert(err.error || 'Ошибка входа');
+      }
+      localStorage.removeItem('id_email');
+      localStorage.removeItem('id_secret');
     }
   });
 }
 
-// --- АНКЕТА ---
 function previewPhoto(input) {
   const file = input.files[0];
   if (!file) return;
@@ -241,7 +271,7 @@ function saveProfile() {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ email: currentUser.email, photo_base64: tempPhotoBase64, age, gender })
   }).then(() => {
-    alert('Анкета отправлена! Ожидайте подтверждения админа.');
+    alert('Анкета отправлена! Ожидайте подтверждения.');
     location.reload();
   });
 }
@@ -282,10 +312,12 @@ function updatePassportUI() {
 }
 
 function logout() {
+  localStorage.removeItem('id_email');
+  localStorage.removeItem('id_secret');
   location.reload();
 }
 
-// --- ПРОПУСКА ---
+// --- ОСТАЛЬНЫЕ ФУНКЦИИ (ПРОПУСКА И АДМИНКА) ОСТАЛИСЬ БЕЗ ИЗМЕНЕНИЙ ---
 function loadUsersForSelect() {
   fetch('/api/users').then(r => r.json()).then(users => {
     const sel = document.getElementById('target-user');
@@ -297,7 +329,7 @@ function loadUsersForSelect() {
         sel.appendChild(opt);
       }
     });
-    if (isAdmin) document.getElementById('admin-panel').style.display = 'block';
+    if (isAdmin) document.getElementById('admin-permits-panel').style.display = 'block';
   });
 }
 
@@ -358,22 +390,6 @@ function loadPermitsData() {
         list.appendChild(div);
       });
     });
-
-    fetch('/api/pending_list').then(r => r.json()).then(data => {
-      if(data.length > 0) {
-         const list = document.getElementById('admin-permits-list');
-         const header = document.createElement('h4');
-         header.innerText = 'Заявки на ID:'; header.style.marginTop = '15px';
-         list.appendChild(header);
-         data.forEach(u => {
-           const div = document.createElement('div');
-           div.className = 'pass-card';
-           div.innerHTML = `<div><div class="pass-name">${u.display_name || u.name} (${u.age} лет)</div></div>
-             <button class="btn2" onclick="approvePassport('${u.email}')">Одобрить</button>`;
-           list.appendChild(div);
-         });
-      }
-    });
   }
 }
 
@@ -381,14 +397,85 @@ function approvePermit(id, hours) {
   fetch('/api/permits/approve', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id, hours }) })
   .then(() => loadPermitsData());
 }
+
 function revokePermit(id) {
   if(!confirm('Забрать пропуск?')) return;
   fetch('/api/permits/revoke', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id }) })
   .then(() => loadPermitsData());
 }
-function approvePassport(email) {
-  fetch('/api/approve_passport', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, adminPass: '1495' }) })
-  .then(() => loadPermitsData());
+
+function loadAdminUsers() {
+  fetch('/api/admin_all_users').then(r => r.json()).then(users => {
+    const list = document.getElementById('admin-users-list');
+    list.innerHTML = '';
+    users.forEach(u => {
+      const div = document.createElement('div');
+      div.className = 'admin-user-card';
+      const status = u.status === 'approved' ? 'OK' : (u.status === 'pending' ? 'На проверке' : 'Нет ID');
+      const photo = u.photo_base64 ? `<img src="${u.photo_base64}" style="width:40px;height:50px;border-radius:4px;object-fit:cover">` : 'Нет';
+
+      div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:10px">
+             ${photo}
+             <div>
+               <b>${u.email}</b><br>
+               <span style="font-size:12px; color:#aaa">Статус: ${status}</span>
+             </div>
+          </div>
+          <button class="btn2" style="background:#FF3D00; color:white" onclick="revokeID('${u.email}')">Забрать ID</button>
+        </div>
+        <input type="text" id="adm-name-${u.email}" value="${u.display_name || u.name || ''}" placeholder="Имя">
+        <div style="display:flex; gap:5px">
+           <input type="number" id="adm-age-${u.email}" value="${u.age || ''}" placeholder="Возраст" style="width:80px">
+           <input type="text" id="adm-gender-${u.email}" value="${u.gender || ''}" placeholder="Пол (M/F)" style="width:80px">
+        </div>
+        <div style="display:flex; gap:5px; margin-top:5px">
+           <label for="adm-photo-${u.email}" class="btn2" style="background:#007BFF; color:white; font-size:12px; padding:8px; text-align:center; cursor:pointer; flex:1">Сменить фото</label>
+           <input type="file" id="adm-photo-${u.email}" accept="image/*" style="display:none" onchange="adminPhotoUpload('${u.email}', this)">
+           <button class="btn2" style="flex:1" onclick="saveAdminEdit('${u.email}')">Сохранить</button>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  });
+}
+
+function revokeID(email) {
+  if(!confirm('Забрать паспорт?')) return;
+  fetch('/api/admin/revoke_id', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, adminPass: '1495' }) })
+  .then(() => loadAdminUsers());
+}
+
+function adminPhotoUpload(email, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 400;
+      let width = img.width; let height = img.height;
+      if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      const base64 = canvas.toDataURL('image/jpeg', 0.7);
+      
+      fetch('/api/admin_edit_user', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, newPhoto: base64, adminPass: '1495' }) })
+      .then(() => { alert('Фото обновлено!'); loadAdminUsers(); });
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveAdminEdit(email) {
+  const name = document.getElementById('adm-name-'+email).value;
+  const age = document.getElementById('adm-age-'+email).value;
+  const gender = document.getElementById('adm-gender-'+email).value;
+  fetch('/api/admin_edit_user', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, newName: name, newAge: age, newGender: gender, adminPass: '1495' }) })
+  .then(() => { alert('Данные сохранены!'); loadAdminUsers(); });
 }
 </script>
 </body>
