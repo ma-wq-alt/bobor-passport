@@ -34,6 +34,7 @@
   .photo-box img { width: 100%; height: 100%; object-fit: cover; }
   .code-box { margin-top: auto; text-align: center; border-top: 2px solid #999; padding-top: 10px; width: 100%; }
   .code { font-size: 24px; font-weight: bold; color: #007BFF; font-family: monospace; letter-spacing: 2px; }
+  
   .right-side { width: 60%; padding: 20px; position: relative; box-sizing: border-box; z-index: 2;}
   .header-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-align: center; letter-spacing: 1px; color: #000; }
   .header-sub { text-align: center; font-size: 10px; color: #555; margin-bottom: 20px; text-transform: uppercase; }
@@ -43,10 +44,13 @@
   .value-small { font-size: 12px; font-weight: bold; }
   
   /* Блок с подписями и символом */
-  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
-  .logo-img { width: 45px; height: 45px; opacity: 0.8; }
-  .signatures { display: flex; gap: 15px; }
-  .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;}
+  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: flex-end; gap: 10px; }
+  
+  /* Символ теперь большой и находится по центру внизу */
+  .big-logo { width: 90px; height: 90px; opacity: 0.9; margin-bottom: -10px;}
+  
+  .signatures { display: flex; gap: 10px; }
+  .sig-box { width: 45px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: #fff;}
   .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
   .hologram { position: absolute; top: 0; left: 0; bottom: 0; width: 15px; background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); opacity: 0.3; z-index: 1; }
@@ -122,10 +126,10 @@
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
           
-          <!-- Блок с логотипом и подписями -->
+          <!-- Блок с печатью и подписями -->
           <div class="signatures-container">
-            <!-- Логотип в Base64 (SVG) -->
-            <svg class="logo-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Увеличенный логотип по центру -->
+            <svg class="big-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
               <path d="M50 0 L61 34 L98 34 L68 56 L79 90 L50 68 L21 90 L32 56 L2 34 L39 34 Z" fill="none" stroke="#000" stroke-width="5"/>
               <circle cx="50" cy="50" r="26" fill="#e0e0e0" stroke="#000" stroke-width="5"/>
               <circle cx="40" cy="48" r="6" fill="#000"/>
