@@ -8,7 +8,7 @@
   :root{--bg:#0B0B0F;--card:#15151B;--border:#26262E;--text:#F5F5F7;--muted:#8A8A93;--green:#00C878;--red:#FF3D00;--lime:#C6FF00;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:20px;box-sizing:border-box}
   .wrap{max-width:600px;width:100%}
-  .login-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px}
   input,select{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#000;color:#fff;font-size:15px;box-sizing:border-box;margin-bottom:8px;font-family:inherit}
   input:focus{outline:none;border-color:var(--red)}
   .btn{background:var(--red);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;font-family:inherit}
@@ -18,6 +18,11 @@
   nav button{background:none;border:0;color:var(--muted);padding:8px 12px;font-size:15px;cursor:pointer;border-radius:8px;white-space:nowrap}
   nav button.on{color:var(--red);font-weight:bold;background:rgba(255,61,0,.1)}
 
+  /* Анкета */
+  #view-form { text-align: center; }
+  .form-avatar { width: 120px; height: 150px; background: #333; border-radius: 10px; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; border: 2px solid #555; }
+  .form-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
   /* ПАСПОРТ BOBOR-ID */
   .passport { background: #F0F0F0; color: #000; width: 100%; min-height: 420px; border-radius: 15px; position: relative; overflow: hidden; font-family: 'Courier New', monospace; display: flex; flex-direction: row; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   @media(max-width: 600px) { .passport { flex-direction: column; } .left-side { width: 100% !important; border-right: none !important; border-bottom: 2px dashed #ccc; } .right-side { width: 100% !important; } }
@@ -25,30 +30,23 @@
   .left-side { width: 40%; background: #E5E5E5; padding: 20px; display: flex; flex-direction: column; align-items: center; border-right: 2px dashed #ccc; box-sizing: border-box; z-index: 2;}
   .photo-box { width: 140px; height: 180px; background: #ccc; border: 2px solid #999; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; color: #666; font-size: 12px; text-align: center; overflow: hidden;}
   .photo-box img { width: 100%; height: 100%; object-fit: cover; }
-  .upload-btn { background: #007BFF; color: #fff; font-size: 12px; padding: 8px; margin-top: 5px; width: 140px; border-radius: 6px; text-align: center; cursor: pointer; display: block;}
-  input[type="file"] { display: none; }
-  
   .code-box { margin-top: auto; text-align: center; border-top: 2px solid #999; padding-top: 10px; width: 100%; }
   .code { font-size: 24px; font-weight: bold; color: #007BFF; font-family: monospace; letter-spacing: 2px; }
 
   .right-side { width: 60%; padding: 20px; position: relative; box-sizing: border-box; z-index: 2;}
-  .header-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; text-align: center; letter-spacing: 1px; color: #000; }
+  .header-title { font-size: 22px; font-weight: bold; margin-bottom: 5px; text-align: center; letter-spacing: 1px; color: #000; }
   .header-sub { text-align: center; font-size: 10px; color: #555; margin-bottom: 20px; text-transform: uppercase; }
-  
   .data-row { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
   .label { font-size: 9px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
   .value { font-size: 14px; font-weight: bold; word-break: break-all; }
   .value-small { font-size: 12px; font-weight: bold; }
-  
   .signatures { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 15px; }
   .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;}
   .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
-
-  /* Голограмма */
   .hologram { position: absolute; top: 0; left: 0; bottom: 0; width: 15px; background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); opacity: 0.3; z-index: 1; }
 
-  /* Остальное */
+  /* Пропуска и профиль */
   .pass-card { background: linear-gradient(135deg, #1a1a24 0%, #0B0B0F 100%); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .pass-name { font-weight: bold; font-size: 16px; color: #fff; }
   .pass-time { font-size: 12px; color: var(--muted); margin-top: 4px; }
@@ -59,15 +57,38 @@
 <body>
 <div class="wrap">
 
-  <div class="login-card" id="login-screen">
+  <!-- ЛОГИН -->
+  <div class="card" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
-    <p style="text-align:center;color:var(--muted);font-size:13px;">Вход через аккаунт банка</p>
     <input type="email" id="log-email" placeholder="Email">
     <input type="password" id="log-pass" placeholder="Пароль">
     <input type="password" id="log-secret" placeholder="Секретное слово">
     <button class="btn" style="width:100%" onclick="doLogin()">Войти</button>
   </div>
 
+  <!-- АНКЕТА (Появляется, если нет данных) -->
+  <div class="card" id="view-form" style="display:none">
+    <h2 style="margin-top:0">Анкета BOBOR-ID</h2>
+    <p style="color:var(--muted);font-size:13px">Заполните данные для создания ID</p>
+    
+    <div class="form-avatar" onclick="document.getElementById('form-photo-input').click()">
+      <img id="form-photo-preview" src="" style="display:none">
+      <span id="form-photo-text">📷 Загрузить</span>
+    </div>
+    <input type="file" id="form-photo-input" accept="image/*" onchange="previewPhoto(this)">
+
+    <input type="number" id="form-age" placeholder="Возраст (лет)">
+    <select id="form-gender">
+      <option value="">Выберите пол</option>
+      <option value="M">Мужской</option>
+      <option value="F">Женский</option>
+    </select>
+    
+    <button class="btn" style="width:100%; margin-top:10px" onclick="saveProfile()">Отправить на проверку</button>
+    <button class="btn" style="width:100%; background:transparent; color:var(--muted); margin-top:5px" onclick="logout()">Выйти</button>
+  </div>
+
+  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
   <div id="main-ui" style="display:none">
     <nav>
       <button id="tab-passport" class="on" onclick="switchTab('passport')">Паспорт</button>
@@ -81,39 +102,19 @@
         <div class="hologram"></div>
         <div class="left-side">
           <div class="photo-box" id="user-photo">НЕТ ФОТО</div>
-          <input type="file" id="photo-input" accept="image/*" onchange="uploadPhoto(this)">
-          <label for="photo-input" class="upload-btn" id="upload-label">📷 Загрузить фото</label>
           <div class="code-box"><div style="font-size:10px;color:#666">№</div><div class="code" id="user-code">00000x</div></div>
         </div>
         <div class="right-side">
           <div class="header-title">BOBOR-ID</div>
           <div class="header-sub">Government System</div>
           
-          <div class="data-row">
-            <span class="label">Имя / Name</span>
-            <span class="value" id="u-name">---</span>
-          </div>
-          
-          <div class="data-row">
-            <span class="label">Дата рождения / DOB</span>
-            <span class="value-small">01.01.2000 (8 лет)</span>
-          </div>
-
+          <div class="data-row"><span class="label">Имя / Name</span><span class="value" id="u-name">---</span></div>
+          <div class="data-row"><span class="label">Возраст / Age</span><span class="value-small" id="u-age">---</span></div>
           <div class="data-row" style="display:flex; gap:10px;">
-            <div style="flex:1;">
-              <span class="label">Пол / Sex</span>
-              <span class="value-small">M</span>
-            </div>
-            <div style="flex:1;">
-              <span class="label">Статус</span>
-              <span class="value-small" id="u-status" style="color:#FF3D00">---</span>
-            </div>
+            <div style="flex:1;"><span class="label">Пол / Sex</span><span class="value-small" id="u-gender">---</span></div>
+            <div style="flex:1;"><span class="label">Статус</span><span class="value-small" id="u-status" style="color:#FF3D00">---</span></div>
           </div>
-
-          <div class="data-row">
-            <span class="label">Орган выдачи</span>
-            <span class="value-small">BOBOR GOV</span>
-          </div>
+          <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
 
           <div class="signatures">
             <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
@@ -129,18 +130,15 @@
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
         <div id="incoming-list"></div>
       </div>
-
       <div style="margin-bottom:20px;">
         <h3 style="color:var(--lime)">Мои активные пропуска</h3>
         <div id="my-permits-list"></div>
       </div>
-
       <div style="background:var(--card); padding:15px; border-radius:12px; margin-bottom:20px;">
         <h4 style="margin-top:0">Запросить проход у друга</h4>
         <select id="target-user"></select>
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
-
       <div id="admin-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Все пропуска (Админ)</h3>
         <div id="admin-permits-list"></div>
@@ -150,7 +148,7 @@
     <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
-        <h2 style="margin-top:0">Инфа BOBOR-ID</h2>
+        <h2 style="margin-top:0">Профиль</h2>
         <div class="rowline"><span class="muted">Email:</span><b id="p-email">---</b></div>
         <div class="rowline"><span class="muted">Имя:</span><b id="p-name">---</b></div>
         <div class="rowline"><span class="muted">Пароль:</span><b id="p-pwd">---</b></div>
@@ -163,7 +161,7 @@
 <script>
 let currentUser = null;
 let isAdmin = false;
-let allUsersList = [];
+let tempPhotoBase64 = '';
 
 function switchTab(t) {
   document.querySelectorAll('nav button').forEach(b => b.classList.remove('on'));
@@ -171,7 +169,6 @@ function switchTab(t) {
   document.getElementById('view-passport').style.display = t === 'passport' ? 'block' : 'none';
   document.getElementById('view-permits').style.display = t === 'permits' ? 'block' : 'none';
   document.getElementById('view-profile').style.display = t === 'profile' ? 'block' : 'none';
-  
   if (t === 'permits') loadPermitsData();
 }
 
@@ -191,18 +188,14 @@ function doLogin() {
       if (currentUser.role === 'admin') isAdmin = true;
       
       document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('main-ui').style.display = 'block';
       
-      document.getElementById('u-name').innerText = currentUser.name;
-      document.getElementById('user-code').innerText = currentUser.passCode;
-      
-      document.getElementById('p-email').innerText = currentUser.email;
-      document.getElementById('p-name').innerText = currentUser.name;
-      document.getElementById('p-pwd').innerText = currentUser.pwd;
-      document.getElementById('p-secret').innerText = currentUser.secret;
-
-      updatePassportUI();
-      loadUsersForSelect();
+      // Проверяем, заполнена ли анкета (есть ли фото и возраст)
+      if (!currentUser.photo || !currentUser.age || !currentUser.gender) {
+        document.getElementById('view-form').style.display = 'block';
+      } else {
+        document.getElementById('main-ui').style.display = 'block';
+        showMainUI();
+      }
     } else {
       const err = await r.json();
       alert(err.error || 'Ошибка входа');
@@ -210,36 +203,8 @@ function doLogin() {
   });
 }
 
-function updatePassportUI() {
-  const p = document.getElementById('user-photo');
-  if (currentUser.photo) {
-    p.innerHTML = `<img src="${currentUser.photo}">`;
-    document.getElementById('upload-label').innerText = '🔄 Изменить';
-  } else {
-    p.innerText = 'НЕТ ФОТО';
-  }
-
-  const statusText = document.getElementById('u-status');
-  document.getElementById('sig-admin').style.display = 'none';
-  document.getElementById('sig-user').style.display = 'none';
-
-  if (currentUser.status === 'approved') {
-    statusText.innerText = 'OK';
-    statusText.style.color = '#00C878';
-    document.getElementById('sig-admin').style.display = 'block';
-    document.getElementById('sig-user').style.display = 'block';
-    document.getElementById('upload-label').style.display = 'none';
-  } else if (currentUser.status === 'pending') {
-    statusText.innerText = 'ПРОВЕРКА';
-    statusText.style.color = '#FFB800';
-    document.getElementById('sig-user').style.display = 'block';
-  } else {
-    statusText.innerText = 'НЕТ ФОТО';
-    statusText.style.color = '#FF3D00';
-  }
-}
-
-function uploadPhoto(input) {
+// --- АНКЕТА ---
+function previewPhoto(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
@@ -252,34 +217,83 @@ function uploadPhoto(input) {
       if (width > MAX_WIDTH) { height = Math.round((height * MAX_WIDTH) / width); width = MAX_WIDTH; }
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-      const base64 = canvas.toDataURL('image/jpeg', 0.7);
-
-      fetch('/api/upload_photo', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ email: currentUser.email, photo_base64: base64 })
-      }).then(() => {
-        currentUser.photo = base64;
-        currentUser.status = 'pending';
-        updatePassportUI();
-      });
+      tempPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      
+      const p = document.getElementById('form-photo-preview');
+      p.src = tempPhotoBase64; p.style.display = 'block';
+      document.getElementById('form-photo-text').style.display = 'none';
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
+function saveProfile() {
+  const age = document.getElementById('form-age').value;
+  const gender = document.getElementById('form-gender').value;
+  
+  if (!tempPhotoBase64) return alert('Загрузите фото');
+  if (!age || age < 1) return alert('Введите возраст');
+  if (!gender) return alert('Выберите пол');
+
+  fetch('/api/save_profile', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ email: currentUser.email, photo_base64: tempPhotoBase64, age, gender })
+  }).then(() => {
+    alert('Анкета отправлена! Ожидайте подтверждения админа.');
+    location.reload();
+  });
+}
+
+function showMainUI() {
+  document.getElementById('u-name').innerText = currentUser.name;
+  document.getElementById('user-code').innerText = currentUser.passCode;
+  document.getElementById('u-age').innerText = currentUser.age + ' лет';
+  document.getElementById('u-gender').innerText = currentUser.gender === 'M' ? 'Мужской' : (currentUser.gender === 'F' ? 'Женский' : '---');
+  
+  document.getElementById('p-email').innerText = currentUser.email;
+  document.getElementById('p-name').innerText = currentUser.name;
+  document.getElementById('p-pwd').innerText = currentUser.pwd;
+  document.getElementById('p-secret').innerText = currentUser.secret;
+  
+  updatePassportUI();
+  loadUsersForSelect();
+}
+
+function updatePassportUI() {
+  const p = document.getElementById('user-photo');
+  if (currentUser.photo) p.innerHTML = `<img src="${currentUser.photo}">`;
+
+  const statusText = document.getElementById('u-status');
+  document.getElementById('sig-admin').style.display = 'none';
+  document.getElementById('sig-user').style.display = 'none';
+
+  if (currentUser.status === 'approved') {
+    statusText.innerText = 'OK';
+    statusText.style.color = '#00C878';
+    document.getElementById('sig-admin').style.display = 'block';
+    document.getElementById('sig-user').style.display = 'block';
+  } else if (currentUser.status === 'pending') {
+    statusText.innerText = 'ПРОВЕРКА';
+    statusText.style.color = '#FFB800';
+    document.getElementById('sig-user').style.display = 'block';
+  }
+}
+
+function logout() {
+  location.reload();
+}
+
 // --- ПРОПУСКА ---
 function loadUsersForSelect() {
   fetch('/api/users').then(r => r.json()).then(users => {
-    allUsersList = users;
     const sel = document.getElementById('target-user');
     sel.innerHTML = '';
     users.forEach(u => {
       if (u.email !== currentUser.email) {
         const opt = document.createElement('option');
-        opt.value = u.email;
-        opt.textContent = u.display_name || u.name;
+        opt.value = u.email; opt.textContent = u.display_name || u.name;
         sel.appendChild(opt);
       }
     });
@@ -290,12 +304,8 @@ function loadUsersForSelect() {
 function requestPermit() {
   const target = document.getElementById('target-user').value;
   if (!target) return alert('Выбери пользователя');
-  
-  fetch('/api/permits/request', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ from_email: currentUser.email, to_email: target })
-  }).then(() => alert('Запрос отправлен! Ждите ответа.'));
+  fetch('/api/permits/request', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ from_email: currentUser.email, to_email: target }) })
+  .then(() => alert('Запрос отправлен!'));
 }
 
 function loadPermitsData() {
@@ -309,21 +319,15 @@ function loadPermitsData() {
         const div = document.createElement('div');
         div.className = 'pass-card';
         div.innerHTML = `
-          <div>
-            <div class="pass-name">${p.display_name || p.name}</div>
-            <div class="pass-time">просит проход</div>
-          </div>
+          <div><div class="pass-name">${p.display_name || p.name}</div><div class="pass-time">просит проход</div></div>
           <div style="display:flex; gap:5px">
             <button class="btn2" onclick="approvePermit(${p.id}, 1)">1ч</button>
             <button class="btn2" onclick="approvePermit(${p.id}, 24)">1д</button>
             <button class="btn2" onclick="approvePermit(${p.id}, 60)">2.5д</button>
-          </div>
-        `;
+          </div>`;
         list.appendChild(div);
       });
-    } else {
-      sec.style.display = 'none';
-    }
+    } else sec.style.display = 'none';
   });
 
   fetch('/api/permits/active/' + currentUser.email).then(r => r.json()).then(data => {
@@ -333,14 +337,9 @@ function loadPermitsData() {
     data.forEach(p => {
       const div = document.createElement('div');
       div.className = 'pass-card';
-      const expires = new Date(p.expires_at).toLocaleString('ru-RU');
       div.innerHTML = `
-        <div>
-          <div class="pass-name">Пропуск от ${p.display_name || p.name}</div>
-          <div class="pass-time">Действует до: ${expires}</div>
-        </div>
-        <div class="pass-active">АКТИВЕН</div>
-      `;
+        <div><div class="pass-name">Пропуск от ${p.display_name || p.name}</div><div class="pass-time">До: ${new Date(p.expires_at).toLocaleString('ru-RU')}</div></div>
+        <div class="pass-active">АКТИВЕН</div>`;
       list.appendChild(div);
     });
   });
@@ -349,17 +348,13 @@ function loadPermitsData() {
     fetch('/api/permits/all_active').then(r => r.json()).then(data => {
       const list = document.getElementById('admin-permits-list');
       list.innerHTML = '';
-      if (data.length === 0) list.innerHTML = '<div class="muted">Нет активных пропусков у пользователей.</div>';
+      if (data.length === 0) list.innerHTML = '<div class="muted">Нет активных пропусков.</div>';
       data.forEach(p => {
         const div = document.createElement('div');
         div.className = 'pass-card';
         div.innerHTML = `
-          <div>
-            <div class="pass-name">${p.from_name} → ${p.to_name}</div>
-            <div class="pass-time">До: ${new Date(p.expires_at).toLocaleString('ru-RU')}</div>
-          </div>
-          <button class="btn" style="background:#ff5555; font-size:12px; padding:5px 10px" onclick="revokePermit(${p.id})">Забрать</button>
-        `;
+          <div><div class="pass-name">${p.from_name} → ${p.to_name}</div><div class="pass-time">До: ${new Date(p.expires_at).toLocaleString('ru-RU')}</div></div>
+          <button class="btn" style="background:#ff5555; font-size:12px; padding:5px 10px" onclick="revokePermit(${p.id})">Забрать</button>`;
         list.appendChild(div);
       });
     });
@@ -368,18 +363,13 @@ function loadPermitsData() {
       if(data.length > 0) {
          const list = document.getElementById('admin-permits-list');
          const header = document.createElement('h4');
-         header.innerText = 'Фото на проверку:';
-         header.style.marginTop = '15px';
+         header.innerText = 'Заявки на ID:'; header.style.marginTop = '15px';
          list.appendChild(header);
          data.forEach(u => {
            const div = document.createElement('div');
            div.className = 'pass-card';
-           div.innerHTML = `
-             <div>
-               <div class="pass-name">${u.display_name || u.name}</div>
-             </div>
-             <button class="btn2" onclick="approvePassport('${u.email}')">Одобрить фото</button>
-           `;
+           div.innerHTML = `<div><div class="pass-name">${u.display_name || u.name} (${u.age} лет)</div></div>
+             <button class="btn2" onclick="approvePassport('${u.email}')">Одобрить</button>`;
            list.appendChild(div);
          });
       }
@@ -388,28 +378,17 @@ function loadPermitsData() {
 }
 
 function approvePermit(id, hours) {
-  fetch('/api/permits/approve', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ permit_id: id, hours })
-  }).then(() => loadPermitsData());
+  fetch('/api/permits/approve', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id, hours }) })
+  .then(() => loadPermitsData());
 }
-
 function revokePermit(id) {
   if(!confirm('Забрать пропуск?')) return;
-  fetch('/api/permits/revoke', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ permit_id: id })
-  }).then(() => loadPermitsData());
+  fetch('/api/permits/revoke', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id }) })
+  .then(() => loadPermitsData());
 }
-
 function approvePassport(email) {
-  fetch('/api/approve_passport', {
-    method: 'POST',
-    headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ targetEmail: email, adminPass: '1495' })
-  }).then(() => loadPermitsData());
+  fetch('/api/approve_passport', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, adminPass: '1495' }) })
+  .then(() => loadPermitsData());
 }
 </script>
 </body>
