@@ -43,12 +43,8 @@
   .value { font-size: 14px; font-weight: bold; word-break: break-all; }
   .value-small { font-size: 12px; font-weight: bold; }
   
-  /* Контейнер для картинки и подписей */
-  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
-  
-  /* Класс для твоей картинки */
-  .my-logo { width: 50px; height: 50px; object-fit: contain; }
-  
+  /* Подписи */
+  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; }
   .signatures { display: flex; gap: 10px; }
   .sig-box { width: 45px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: #fff;}
   .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
@@ -126,10 +122,8 @@
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
           
+          <!-- Только подписи, без картинки -->
           <div class="signatures-container">
-            <!-- ТВОЯ КАРТИНКА -->
-            <img class="my-logo" src="https://i.ibb.co/6PZ9Z9x/photo-2026-10-25-17-25-12.jpg" alt="logo">
-
             <div class="signatures">
               <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
               <div class="sig-box"><span class="checkmark" id="sig-user">✔</span><span class="sig-label">ЮЗЕР</span></div>
@@ -139,7 +133,7 @@
       </div>
     </div>
 
-    <!-- ОСТАЛЬНЫЕ ВКЛАДКИ (без изменений) -->
+    <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -169,6 +163,7 @@
       </div>
     </div>
 
+    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -179,6 +174,7 @@
       </div>
     </div>
 
+    <!-- АДМИНКА -->
     <div id="view-admin" style="display:none">
       <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
       <div id="admin-users-list"></div>
@@ -187,7 +183,6 @@
 </div>
 
 <script>
-// ... (Скрипт остался точно таким же, я не менял логику, только картинку в HTML)
 let currentUser = null;
 let isAdmin = false;
 let tempPhotoBase64 = '';
