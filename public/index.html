@@ -15,7 +15,7 @@
   .btn2{background:var(--lime);color:#000;border:0;padding:8px 15px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
   .btn3{background:rgba(255,255,255,0.1);color:#fff;border:0;padding:8px 12px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;font-family:inherit}
   
-  nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto; align-items:center;}
+  nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto; align-items:center; flex-wrap:wrap;}
   nav button{background:none;border:0;color:var(--muted);padding:8px 12px;font-size:15px;cursor:pointer;border-radius:8px;white-space:nowrap}
   nav button.on{color:var(--red);font-weight:bold;background:rgba(255,61,0,.1)}
   
@@ -60,6 +60,7 @@
 <body>
 <div class="wrap">
 
+  <!-- ЛОГИН -->
   <div class="card" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
     <input type="email" id="log-email" placeholder="Email">
@@ -68,6 +69,7 @@
     <button class="btn" style="width:100%" onclick="doLogin()">Войти</button>
   </div>
 
+  <!-- АНКЕТА -->
   <div class="card" id="view-form">
     <h2 style="margin-top:0; text-align:center;">Анкета BOBOR-ID</h2>
     <div class="form-avatar" onclick="document.getElementById('form-photo-input').click()">
@@ -85,6 +87,7 @@
     <button class="btn3" style="width:100%; margin-top:5px" onclick="logout()">Выйти</button>
   </div>
 
+  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
   <div id="main-ui" style="display:none">
     <nav>
       <button id="tab-passport" class="on" onclick="switchTab('passport')">Паспорт</button>
@@ -92,13 +95,13 @@
       <button id="tab-profile" onclick="switchTab('profile')">Профиль</button>
       <button id="tab-admin" style="display:none; color:var(--lime)" onclick="switchTab('admin')">Админка</button>
       
-      <!-- Кнопки в углу -->
       <div class="header-actions">
         <button class="btn3" onclick="location.reload()">🔄</button>
         <button class="btn" onclick="logout()">Выйти</button>
       </div>
     </nav>
 
+    <!-- ПАСПОРТ -->
     <div id="view-passport">
       <div class="passport">
         <div class="hologram"></div>
@@ -124,6 +127,7 @@
       </div>
     </div>
 
+    <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -144,6 +148,7 @@
       </div>
     </div>
 
+    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -154,6 +159,7 @@
       </div>
     </div>
 
+    <!-- АДМИНКА -->
     <div id="view-admin" style="display:none">
       <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
       <div id="admin-users-list"></div>
@@ -166,14 +172,15 @@ let currentUser = null;
 let isAdmin = false;
 let tempPhotoBase64 = '';
 
-// ПРОВЕРКА СОХРАНЕННОЙ СЕССИИ
+// АВТО-ВХОД
 let savedEmail = localStorage.getItem('id_email');
 let savedSecret = localStorage.getItem('id_secret');
+let savedPass = localStorage.getItem('id_pass'); // Сохраняем и пароль для авто-входа
 
 window.onload = () => {
-  if (savedEmail && savedSecret) {
-    // Автоматический вход
+  if (savedEmail && savedSecret && savedPass) {
     document.getElementById('log-email').value = savedEmail;
+    document.getElementById('log-pass').value = savedPass;
     document.getElementById('log-secret').value = savedSecret;
     doLogin(true);
   }
@@ -186,8 +193,9 @@ function switchTab(t) {
     const el = document.getElementById('view-'+v);
     if(el) el.style.display = (v === t) ? 'block' : 'none';
   });
+  
   if (t === 'permits') loadPermitsData();
-  if (t === 'admin') loadAdminUsers();
+  if (t === 'admin') loadAdminUsers(); // Явный вызов
 }
 
 function doLogin(autoLogin = false) {
@@ -206,8 +214,8 @@ function doLogin(autoLogin = false) {
       const data = await r.json();
       currentUser = data.user;
       
-      // Сохраняем для авто-входа
       localStorage.setItem('id_email', email);
+      localStorage.setItem('id_pass', password);
       localStorage.setItem('id_secret', secret);
       
       if (currentUser.role === 'admin') {
@@ -229,6 +237,7 @@ function doLogin(autoLogin = false) {
         alert(err.error || 'Ошибка входа');
       }
       localStorage.removeItem('id_email');
+      localStorage.removeItem('id_pass');
       localStorage.removeItem('id_secret');
     }
   });
@@ -313,11 +322,11 @@ function updatePassportUI() {
 
 function logout() {
   localStorage.removeItem('id_email');
+  localStorage.removeItem('id_pass');
   localStorage.removeItem('id_secret');
   location.reload();
 }
 
-// --- ОСТАЛЬНЫЕ ФУНКЦИИ (ПРОПУСКА И АДМИНКА) ОСТАЛИСЬ БЕЗ ИЗМЕНЕНИЙ ---
 function loadUsersForSelect() {
   fetch('/api/users').then(r => r.json()).then(users => {
     const sel = document.getElementById('target-user');
@@ -405,9 +414,16 @@ function revokePermit(id) {
 }
 
 function loadAdminUsers() {
+  console.log("Загрузка админки...");
   fetch('/api/admin_all_users').then(r => r.json()).then(users => {
     const list = document.getElementById('admin-users-list');
     list.innerHTML = '';
+    
+    if (users.length === 0) {
+      list.innerHTML = '<div class="muted">Пользователей нет.</div>';
+      return;
+    }
+
     users.forEach(u => {
       const div = document.createElement('div');
       div.className = 'admin-user-card';
@@ -438,6 +454,9 @@ function loadAdminUsers() {
       `;
       list.appendChild(div);
     });
+  }).catch(e => {
+    console.error(e);
+    document.getElementById('admin-users-list').innerHTML = '<div class="muted" style="color:red">Ошибка загрузки</div>';
   });
 }
 
