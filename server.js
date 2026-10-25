@@ -19,9 +19,16 @@ async function initDB() {
       CREATE TABLE IF NOT EXISTS passport_data (
         email TEXT PRIMARY KEY, 
         photo_base64 TEXT, 
-        status TEXT DEFAULT 'none'
+        status TEXT DEFAULT 'none',
+        age INTEGER DEFAULT 0,
+        gender TEXT DEFAULT '',
+        last_photo_update TEXT
       )
     `);
+    try { await db.execute('ALTER TABLE passport_data ADD COLUMN age INTEGER DEFAULT 0'); } catch(e) {}
+    try { await db.execute('ALTER TABLE passport_data ADD COLUMN gender TEXT DEFAULT ""'); } catch(e) {}
+    try { await db.execute('ALTER TABLE passport_data ADD COLUMN last_photo_update TEXT'); } catch(e) {}
+    
     await db.execute(`
       CREATE TABLE IF NOT EXISTS permits (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,6 +65,15 @@ app.post('/api/login', async (req, res) => {
 
     const p = await db.execute({ sql: 'SELECT * FROM passport_data WHERE email = ?', args: [user.email] });
     
+    let photo = '', status = 'none', age = 0, gender = '', lastUpdate = null;
+    if (p.rows.length > 0) {
+      photo = p.rows[0].photo_base64;
+      status = p.rows[0].status;
+      age = p.rows[0].age;
+      gender = p.rows[0].gender;
+      lastUpdate = p.rows[0].last_photo_update;
+    }
+
     res.json({ 
       success: true, 
       user: { 
@@ -65,8 +81,11 @@ app.post('/api/login', async (req, res) => {
         email: user.email, 
         role: user.role,
         passCode: passCode,
-        photo: p.rows.length > 0 ? p.rows[0].photo_base64 : '',
-        status: p.rows.length > 0 ? p.rows[0].status : 'none',
+        photo: photo,
+        status: status,
+        age: age,
+        gender: gender,
+        lastPhotoUpdate: lastUpdate,
         pwd: user.pwd,
         secret: user.secret_word
       } 
@@ -74,20 +93,19 @@ app.post('/api/login', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/users', async (req, res) => {
-  if (!db) return res.json([]);
-  const r = await db.execute('SELECT email, display_name, name, role FROM users');
-  res.json(r.rows);
-});
-
-app.post('/api/upload_photo', async (req, res) => {
-  const { email, photo_base64 } = req.body;
+// Анкета (сохранение данных и фото)
+app.post('/api/save_profile', async (req, res) => {
+  const { email, photo_base64, age, gender } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
+  
   try {
+    const now = new Date().toISOString();
     await db.execute({ 
-      sql: `INSERT INTO passport_data (email, photo_base64, status) VALUES (?, ?, 'pending') 
-            ON CONFLICT(email) DO UPDATE SET photo_base64 = ?, status = 'pending'`, 
-      args: [email, photo_base64, photo_base64] 
+      sql: `INSERT INTO passport_data (email, photo_base64, status, age, gender, last_photo_update) 
+            VALUES (?, ?, 'pending', ?, ?, ?) 
+            ON CONFLICT(email) DO UPDATE SET 
+            photo_base64 = ?, status = 'pending', age = ?, gender = ?, last_photo_update = ?`, 
+      args: [email, photo_base64, age, gender, now, photo_base64, age, gender, now] 
     });
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -97,7 +115,7 @@ app.get('/api/pending_list', async (req, res) => {
   if (!db) return res.json([]);
   try {
     const r = await db.execute(`
-      SELECT u.email, u.display_name, u.name, p.photo_base64 
+      SELECT u.email, u.display_name, u.name, p.photo_base64, p.age, p.gender 
       FROM passport_data p JOIN users u ON p.email = u.email WHERE p.status = 'pending'
     `);
     res.json(r.rows);
@@ -113,52 +131,40 @@ app.post('/api/approve_passport', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// --- СИСТЕМА ПРОПУСКОВ ---
+// --- ПРОПУСКА (без изменений) ---
+app.get('/api/users', async (req, res) => {
+  if (!db) return res.json([]);
+  const r = await db.execute('SELECT email, display_name, name, role FROM users');
+  res.json(r.rows);
+});
 
-// Запросить проход у другого юзера
 app.post('/api/permits/request', async (req, res) => {
   const { from_email, to_email } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
   try {
-    await db.execute({ 
-      sql: `INSERT INTO permits (from_email, to_email, status, created_at) VALUES (?, ?, 'pending', ?)`,
-      args: [from_email, to_email, new Date().toISOString()]
-    });
+    await db.execute({ sql: `INSERT INTO permits (from_email, to_email, status, created_at) VALUES (?, ?, 'pending', ?)`, args: [from_email, to_email, new Date().toISOString()] });
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Получить входящие запросы (для юзера, у которого просят)
 app.get('/api/permits/incoming/:email', async (req, res) => {
   if (!db) return res.json([]);
   try {
-    const r = await db.execute({ 
-      sql: `SELECT p.*, u.display_name, u.name FROM permits p 
-            JOIN users u ON p.from_email = u.email 
-            WHERE p.to_email = ? AND p.status = 'pending'`, 
-      args: [req.params.email] 
-    });
+    const r = await db.execute({ sql: `SELECT p.*, u.display_name, u.name FROM permits p JOIN users u ON p.from_email = u.email WHERE p.to_email = ? AND p.status = 'pending'`, args: [req.params.email] });
     res.json(r.rows);
   } catch(e) { res.json([]); }
 });
 
-// Одобрить запрос (выдать пропуск)
 app.post('/api/permits/approve', async (req, res) => {
   const { permit_id, hours } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
   try {
-    const d = new Date();
-    d.setHours(d.getHours() + Number(hours));
-    
-    await db.execute({ 
-      sql: `UPDATE permits SET status = 'approved', expires_at = ? WHERE id = ?`, 
-      args: [d.toISOString(), permit_id] 
-    });
+    const d = new Date(); d.setHours(d.getHours() + Number(hours));
+    await db.execute({ sql: `UPDATE permits SET status = 'approved', expires_at = ? WHERE id = ?`, args: [d.toISOString(), permit_id] });
     res.json({ success: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Забрать пропуск (может либо тот, кто выдал, либо АДМИН)
 app.post('/api/permits/revoke', async (req, res) => {
   const { permit_id } = req.body;
   if (!db) return res.status(500).json({ error: 'Нет базы' });
@@ -168,41 +174,23 @@ app.post('/api/permits/revoke', async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Получить активные пропуска юзера
 app.get('/api/permits/active/:email', async (req, res) => {
   if (!db) return res.json([]);
   try {
-    const r = await db.execute({ 
-      sql: `SELECT p.*, u.display_name, u.name FROM permits p 
-            JOIN users u ON p.to_email = u.email 
-            WHERE p.from_email = ? AND p.status = 'approved' ORDER BY p.id DESC`, 
-      args: [req.params.email] 
-    });
-    // Фильтруем те, у которых не истекло время
+    const r = await db.execute({ sql: `SELECT p.*, u.display_name, u.name FROM permits p JOIN users u ON p.to_email = u.email WHERE p.from_email = ? AND p.status = 'approved' ORDER BY p.id DESC`, args: [req.params.email] });
     const now = new Date();
-    const active = r.rows.filter(p => p.expires_at && new Date(p.expires_at) > now);
-    res.json(active);
+    res.json(r.rows.filter(p => p.expires_at && new Date(p.expires_at) > now));
   } catch(e) { res.json([]); }
 });
 
-// Админ получает ВСЕ активные пропуска
 app.get('/api/permits/all_active', async (req, res) => {
   if (!db) return res.json([]);
   try {
-    const r = await db.execute(`
-      SELECT p.*, 
-             u1.display_name as from_name, u1.email as from_email,
-             u2.display_name as to_name, u2.email as to_email 
-      FROM permits p
-      JOIN users u1 ON p.from_email = u1.email
-      JOIN users u2 ON p.to_email = u2.email
-      WHERE p.status = 'approved'
-    `);
+    const r = await db.execute(`SELECT p.*, u1.display_name as from_name, u2.display_name as to_name FROM permits p JOIN users u1 ON p.from_email = u1.email JOIN users u2 ON p.to_email = u2.email WHERE p.status = 'approved'`);
     const now = new Date();
-    const active = r.rows.filter(p => p.expires_at && new Date(p.expires_at) > now);
-    res.json(active);
+    res.json(r.rows.filter(p => p.expires_at && new Date(p.expires_at) > now));
   } catch(e) { res.json([]); }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🪪 PASSPORT на :${PORT}`));
+app.listen(PORT, () => console.log(`🪪 BOBOR-ID на :${PORT}`));
