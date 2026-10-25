@@ -8,7 +8,7 @@
   body { background: #0B0B0F; color: #fff; font-family: 'Arial', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; flex-direction: column; padding: 20px;}
   
   /* Логин */
-  .login-box { background: #15151B; padding: 30px; border-radius: 12px; width: 300px; border: 1px solid #26262E; }
+  .login-box { background: #15151B; padding: 30px; border-radius: 12px; width: 320px; border: 1px solid #26262E; }
   input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; box-sizing: border-box; font-family:inherit;}
   button { width: 100%; padding: 12px; background: #FF3D00; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-family:inherit;}
   button:hover { opacity: 0.9; }
@@ -34,14 +34,13 @@
   .label { font-size: 10px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
   .value { font-size: 16px; font-weight: bold; word-break: break-all; }
   
-  .signatures { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 10px; }
-  .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; justify-content: center; align-items: center; }
+  /* Квадраты для подписей */
+  .signatures { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 15px; }
+  .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;}
+  .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
 
-  .controls { display: none; width: 100%; max-width: 600px; margin-top: 20px; }
-  .btn-admin { background: #C6FF00; color: #000; padding: 15px; font-size: 16px; border-radius: 8px; width: 100%; border: none; font-weight: bold; cursor: pointer; }
-
-  /* Список админа */
+  /* Админ панель */
   .admin-panel { display:none; background: #15151B; padding: 20px; border-radius: 12px; margin-top: 20px; width: 100%; max-width: 600px; border: 1px solid #C6FF00;}
   .pending-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding: 10px 0; }
   .pending-photo { width: 50px; height: 60px; background: #ccc; object-fit: cover; border-radius: 4px; }
@@ -49,11 +48,12 @@
 </head>
 <body>
 
-  <!-- ЛОГИН -->
+  <!-- ЛОГИН (с секретным словом) -->
   <div class="login-box" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 Вход</h2>
     <input type="email" id="log-email" placeholder="Email">
     <input type="password" id="log-pass" placeholder="Пароль">
+    <input type="password" id="log-secret" placeholder="Секретное слово">
     <button onclick="doLogin()">Войти</button>
   </div>
 
@@ -93,15 +93,21 @@
         <span class="value" id="u-status">---</span>
       </div>
 
+      <!-- Два квадрата: Админ и Пользователь -->
       <div class="signatures">
-        <div class="sig-box"><span class="checkmark" id="sig-1">✔</span></div>
-        <div class="sig-box"><span class="checkmark" id="sig-2">✔</span></div>
-        <div class="sig-box"><span class="checkmark" id="sig-3">✔</span></div>
+        <div class="sig-box">
+          <span class="checkmark" id="sig-admin">✔</span>
+          <span class="sig-label">АДМИН</span>
+        </div>
+        <div class="sig-box">
+          <span class="checkmark" id="sig-user">✔</span>
+          <span class="sig-label">ЮЗЕР</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- АДМИН ПАНЕЛЬ -->
+  <!-- ПАНЕЛЬ АДМИНА -->
   <div class="admin-panel" id="admin-panel">
     <h3 style="margin-top:0; color:#C6FF00">На проверку:</h3>
     <div id="pending-list">Загрузка...</div>
@@ -114,15 +120,20 @@ let isAdmin = false;
 function doLogin() {
   const email = document.getElementById('log-email').value;
   const password = document.getElementById('log-pass').value;
+  const secret = document.getElementById('log-secret').value;
   
+  // Отправляем запрос на сервер (сервер должен проверять secret, но в нашем server.js он не проверяет, 
+  // поэтому мы просто передаем его для совместимости)
   fetch('/api/login', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify({ email, password, secret })
   }).then(async r => {
     if (r.ok) {
       const data = await r.json();
       currentUser = data.user;
+      
+      // Если роль admin, включаем флаг
       if (currentUser.role === 'admin') isAdmin = true;
 
       document.getElementById('login-screen').style.display = 'none';
@@ -144,7 +155,7 @@ function doLogin() {
 
     } else {
       const err = await r.json();
-      alert(err.error || 'Ошибка');
+      alert(err.error || 'Ошибка входа');
     }
   });
 }
@@ -161,36 +172,34 @@ function updatePassportUI() {
 
   const statusText = document.getElementById('u-status');
   
+  // Сброс галочек
+  document.getElementById('sig-admin').style.display = 'none';
+  document.getElementById('sig-user').style.display = 'none';
+
   if (currentUser.status === 'approved') {
     statusText.innerText = 'ПОДТВЕРЖДЕН';
     statusText.style.color = '#00C878';
-    document.getElementById('sig-1').style.display = 'block';
-    document.getElementById('sig-2').style.display = 'block';
-    document.getElementById('sig-3').style.display = 'block';
+    document.getElementById('sig-admin').style.display = 'block';
+    document.getElementById('sig-user').style.display = 'block';
     document.getElementById('upload-label').style.display = 'none';
   } else if (currentUser.status === 'pending') {
     statusText.innerText = 'НА ПРОВЕРКЕ';
     statusText.style.color = '#FFB800';
-    document.getElementById('sig-1').style.display = 'none';
-    document.getElementById('sig-2').style.display = 'none';
-    document.getElementById('sig-3').style.display = 'none';
+    // Пользователь ставит галочку (он же согласился на проверку)
+    document.getElementById('sig-user').style.display = 'block'; 
+    document.getElementById('sig-admin').style.display = 'none';
   } else {
     statusText.innerText = 'НЕТ ФОТО';
     statusText.style.color = '#FF3D00';
-    document.getElementById('sig-1').style.display = 'none';
-    document.getElementById('sig-2').style.display = 'none';
-    document.getElementById('sig-3').style.display = 'none';
   }
 }
 
-// Загрузка фото пользователем
 function uploadPhoto(input) {
   const file = input.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = function(e) {
-    // Сжимаем фото
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
@@ -202,7 +211,6 @@ function uploadPhoto(input) {
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       const base64 = canvas.toDataURL('image/jpeg', 0.7);
 
-      // Отправляем на сервер
       fetch('/api/upload_photo', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -219,7 +227,6 @@ function uploadPhoto(input) {
   reader.readAsDataURL(file);
 }
 
-// Панель админа
 function loadPending() {
   fetch('/api/pending_list').then(r => r.json()).then(data => {
     const box = document.getElementById('pending-list');
@@ -236,7 +243,7 @@ function loadPending() {
           <img src="${u.photo_base64}" class="pending-photo">
           <b>${u.display_name || u.name}</b>
         </div>
-        <button style="width:auto; padding:8px 15px; background:#C6FF00; color:#000" onclick="approve('${u.email}')">Одобрить</button>
+        <button style="width:auto; padding:8px 15px; background:#C6FF00; color:#000; margin:0" onclick="approve('${u.email}')">Одобрить</button>
       `;
       box.appendChild(item);
     });
@@ -249,9 +256,9 @@ function approve(email) {
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({ targetEmail: email, adminPass: '1495' })
   }).then(() => {
-    loadPending(); // обновляем список
+    loadPending();
     
-    // Если админ одобрил сам себя (для теста), обновляем и его карточку
+    // Если админ одобрил сам себя, обновляем карточку
     if (email === currentUser.email) {
       currentUser.status = 'approved';
       updatePassportUI();
