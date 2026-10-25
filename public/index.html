@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BOBOR PASSPORT</title>
+<title>BOBOR-ID</title>
 <style>
   :root{--bg:#0B0B0F;--card:#15151B;--border:#26262E;--text:#F5F5F7;--muted:#8A8A93;--green:#00C878;--red:#FF3D00;--lime:#C6FF00;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif;display:flex;justify-content:center;min-height:100vh;padding:20px;box-sizing:border-box}
@@ -13,33 +13,42 @@
   input:focus{outline:none;border-color:var(--red)}
   .btn{background:var(--red);color:#fff;border:0;padding:11px 18px;border-radius:10px;font-size:15px;font-weight:bold;cursor:pointer;font-family:inherit}
   .btn2{background:var(--lime);color:#000;border:0;padding:8px 15px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer}
-  .btn3{background:rgba(255,255,255,.1);color:var(--text);border:0;padding:8px 12px;border-radius:8px;font-size:14px;cursor:pointer}
   
   nav{display:flex;gap:5px;margin-bottom:15px;overflow-x:auto}
   nav button{background:none;border:0;color:var(--muted);padding:8px 12px;font-size:15px;cursor:pointer;border-radius:8px;white-space:nowrap}
   nav button.on{color:var(--red);font-weight:bold;background:rgba(255,61,0,.1)}
 
-  /* ПАСПОРТ */
-  .passport { background: #F0F0F0; color: #000; width: 100%; min-height: 380px; border-radius: 15px; position: relative; overflow: hidden; font-family: 'Courier New', monospace; display: flex; flex-direction: row; }
+  /* ПАСПОРТ BOBOR-ID */
+  .passport { background: #F0F0F0; color: #000; width: 100%; min-height: 420px; border-radius: 15px; position: relative; overflow: hidden; font-family: 'Courier New', monospace; display: flex; flex-direction: row; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   @media(max-width: 600px) { .passport { flex-direction: column; } .left-side { width: 100% !important; border-right: none !important; border-bottom: 2px dashed #ccc; } .right-side { width: 100% !important; } }
-  .left-side { width: 40%; background: #E5E5E5; padding: 20px; display: flex; flex-direction: column; align-items: center; border-right: 2px dashed #ccc; box-sizing: border-box;}
+  
+  .left-side { width: 40%; background: #E5E5E5; padding: 20px; display: flex; flex-direction: column; align-items: center; border-right: 2px dashed #ccc; box-sizing: border-box; z-index: 2;}
   .photo-box { width: 140px; height: 180px; background: #ccc; border: 2px solid #999; margin-bottom: 15px; display: flex; justify-content: center; align-items: center; color: #666; font-size: 12px; text-align: center; overflow: hidden;}
   .photo-box img { width: 100%; height: 100%; object-fit: cover; }
   .upload-btn { background: #007BFF; color: #fff; font-size: 12px; padding: 8px; margin-top: 5px; width: 140px; border-radius: 6px; text-align: center; cursor: pointer; display: block;}
   input[type="file"] { display: none; }
+  
   .code-box { margin-top: auto; text-align: center; border-top: 2px solid #999; padding-top: 10px; width: 100%; }
   .code { font-size: 24px; font-weight: bold; color: #007BFF; font-family: monospace; letter-spacing: 2px; }
-  .right-side { width: 60%; padding: 20px; position: relative; box-sizing: border-box; }
-  .header-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
-  .data-row { margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
-  .label { font-size: 10px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
-  .value { font-size: 16px; font-weight: bold; word-break: break-all; }
+
+  .right-side { width: 60%; padding: 20px; position: relative; box-sizing: border-box; z-index: 2;}
+  .header-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; text-align: center; letter-spacing: 1px; color: #000; }
+  .header-sub { text-align: center; font-size: 10px; color: #555; margin-bottom: 20px; text-transform: uppercase; }
+  
+  .data-row { margin-bottom: 10px; border-bottom: 1px solid #ccc; padding-bottom: 2px; }
+  .label { font-size: 9px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
+  .value { font-size: 14px; font-weight: bold; word-break: break-all; }
+  .value-small { font-size: 12px; font-weight: bold; }
+  
   .signatures { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 15px; }
   .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;}
   .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
 
-  /* ПРОПУСКА */
+  /* Голограмма */
+  .hologram { position: absolute; top: 0; left: 0; bottom: 0; width: 15px; background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); opacity: 0.3; z-index: 1; }
+
+  /* Остальное */
   .pass-card { background: linear-gradient(135deg, #1a1a24 0%, #0B0B0F 100%); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
   .pass-name { font-weight: bold; font-size: 16px; color: #fff; }
   .pass-time { font-size: 12px; color: var(--muted); margin-top: 4px; }
@@ -51,7 +60,8 @@
 <div class="wrap">
 
   <div class="login-card" id="login-screen">
-    <h2 style="text-align:center;margin-top:0">🪪 BOBOR PASSPORT</h2>
+    <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
+    <p style="text-align:center;color:var(--muted);font-size:13px;">Вход через аккаунт банка</p>
     <input type="email" id="log-email" placeholder="Email">
     <input type="password" id="log-pass" placeholder="Пароль">
     <input type="password" id="log-secret" placeholder="Секретное слово">
@@ -68,6 +78,7 @@
     <!-- ПАСПОРТ -->
     <div id="view-passport">
       <div class="passport">
+        <div class="hologram"></div>
         <div class="left-side">
           <div class="photo-box" id="user-photo">НЕТ ФОТО</div>
           <input type="file" id="photo-input" accept="image/*" onchange="uploadPhoto(this)">
@@ -75,10 +86,35 @@
           <div class="code-box"><div style="font-size:10px;color:#666">№</div><div class="code" id="user-code">00000x</div></div>
         </div>
         <div class="right-side">
-          <div class="header-title">BOBOR PRODUCTION</div>
-          <div class="data-row"><span class="label">Имя</span><span class="value" id="u-name">---</span></div>
-          <div class="data-row"><span class="label">Почта</span><span class="value" id="u-email" style="font-size:12px">---</span></div>
-          <div class="data-row"><span class="label">Статус</span><span class="value" id="u-status">---</span></div>
+          <div class="header-title">BOBOR-ID</div>
+          <div class="header-sub">Government System</div>
+          
+          <div class="data-row">
+            <span class="label">Имя / Name</span>
+            <span class="value" id="u-name">---</span>
+          </div>
+          
+          <div class="data-row">
+            <span class="label">Дата рождения / DOB</span>
+            <span class="value-small">01.01.2000 (8 лет)</span>
+          </div>
+
+          <div class="data-row" style="display:flex; gap:10px;">
+            <div style="flex:1;">
+              <span class="label">Пол / Sex</span>
+              <span class="value-small">M</span>
+            </div>
+            <div style="flex:1;">
+              <span class="label">Статус</span>
+              <span class="value-small" id="u-status" style="color:#FF3D00">---</span>
+            </div>
+          </div>
+
+          <div class="data-row">
+            <span class="label">Орган выдачи</span>
+            <span class="value-small">BOBOR GOV</span>
+          </div>
+
           <div class="signatures">
             <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
             <div class="sig-box"><span class="checkmark" id="sig-user">✔</span><span class="sig-label">ЮЗЕР</span></div>
@@ -89,26 +125,22 @@
 
     <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
-      <!-- Входящие запросы (если у тебя просят) -->
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
         <div id="incoming-list"></div>
       </div>
 
-      <!-- Мои активные пропуска -->
       <div style="margin-bottom:20px;">
         <h3 style="color:var(--lime)">Мои активные пропуска</h3>
         <div id="my-permits-list"></div>
       </div>
 
-      <!-- Запросить проход -->
       <div style="background:var(--card); padding:15px; border-radius:12px; margin-bottom:20px;">
         <h4 style="margin-top:0">Запросить проход у друга</h4>
         <select id="target-user"></select>
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
 
-      <!-- Панель админа -->
       <div id="admin-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Все пропуска (Админ)</h3>
         <div id="admin-permits-list"></div>
@@ -118,7 +150,7 @@
     <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
-        <h2 style="margin-top:0">Инфа</h2>
+        <h2 style="margin-top:0">Инфа BOBOR-ID</h2>
         <div class="rowline"><span class="muted">Email:</span><b id="p-email">---</b></div>
         <div class="rowline"><span class="muted">Имя:</span><b id="p-name">---</b></div>
         <div class="rowline"><span class="muted">Пароль:</span><b id="p-pwd">---</b></div>
@@ -162,7 +194,6 @@ function doLogin() {
       document.getElementById('main-ui').style.display = 'block';
       
       document.getElementById('u-name').innerText = currentUser.name;
-      document.getElementById('u-email').innerText = currentUser.email;
       document.getElementById('user-code').innerText = currentUser.passCode;
       
       document.getElementById('p-email').innerText = currentUser.email;
@@ -193,13 +224,13 @@ function updatePassportUI() {
   document.getElementById('sig-user').style.display = 'none';
 
   if (currentUser.status === 'approved') {
-    statusText.innerText = 'ПОДТВЕРЖДЕН';
+    statusText.innerText = 'OK';
     statusText.style.color = '#00C878';
     document.getElementById('sig-admin').style.display = 'block';
     document.getElementById('sig-user').style.display = 'block';
     document.getElementById('upload-label').style.display = 'none';
   } else if (currentUser.status === 'pending') {
-    statusText.innerText = 'НА ПРОВЕРКЕ';
+    statusText.innerText = 'ПРОВЕРКА';
     statusText.style.color = '#FFB800';
     document.getElementById('sig-user').style.display = 'block';
   } else {
@@ -268,7 +299,6 @@ function requestPermit() {
 }
 
 function loadPermitsData() {
-  // 1. Входящие запросы
   fetch('/api/permits/incoming/' + currentUser.email).then(r => r.json()).then(data => {
     const sec = document.getElementById('incoming-section');
     const list = document.getElementById('incoming-list');
@@ -296,7 +326,6 @@ function loadPermitsData() {
     }
   });
 
-  // 2. Мои активные
   fetch('/api/permits/active/' + currentUser.email).then(r => r.json()).then(data => {
     const list = document.getElementById('my-permits-list');
     list.innerHTML = '';
@@ -316,7 +345,6 @@ function loadPermitsData() {
     });
   });
 
-  // 3. Если админ - все пропуска и заявки
   if (isAdmin) {
     fetch('/api/permits/all_active').then(r => r.json()).then(data => {
       const list = document.getElementById('admin-permits-list');
