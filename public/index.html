@@ -26,6 +26,11 @@
   .form-avatar { width: 120px; height: 150px; background: #333; border-radius: 10px; margin: 0 auto 15px; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; border: 2px solid #555; }
   .form-avatar img { width: 100%; height: 100%; object-fit: cover; }
 
+  /* Экран ожидания */
+  #view-waiting { text-align: center; display: none; padding: 50px 20px; background: var(--card); border-radius: 15px; border: 1px dashed var(--muted); }
+  #view-waiting h2 { color: var(--lime); font-size: 24px; margin-bottom: 10px; }
+  #view-waiting p { color: var(--muted); font-size: 16px; }
+
   .passport { background: #F0F0F0; color: #000; width: 100%; min-height: 420px; border-radius: 15px; position: relative; overflow: hidden; font-family: 'Courier New', monospace; display: flex; flex-direction: row; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
   @media(max-width: 600px) { .passport { flex-direction: column; } .left-side { width: 100% !important; border-right: none !important; border-bottom: 2px dashed #ccc; } .right-side { width: 100% !important; } }
   
@@ -43,7 +48,6 @@
   .value { font-size: 14px; font-weight: bold; word-break: break-all; }
   .value-small { font-size: 12px; font-weight: bold; }
   
-  /* Подписи */
   .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; }
   .signatures { display: flex; gap: 10px; }
   .sig-box { width: 45px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; background: #fff;}
@@ -51,12 +55,17 @@
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
   .hologram { position: absolute; top: 0; left: 0; bottom: 0; width: 15px; background: linear-gradient(to bottom, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff); opacity: 0.3; z-index: 1; }
 
-  .pass-card { background: linear-gradient(135deg, #1a1a24 0%, #0B0B0F 100%); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .pass-card { background: linear-gradient(135deg, #1a1a24 0%, #0B0B0F 100%); border: 1px solid #333; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px; }
   .pass-name { font-weight: bold; font-size: 16px; color: #fff; }
   .pass-time { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .pass-active { color: var(--green); font-weight: bold; font-size: 12px; border: 1px solid var(--green); padding: 2px 8px; border-radius: 6px; }
   .timer { font-family: monospace; font-size: 14px; color: #fff; background: rgba(255,61,0,0.2); padding: 2px 6px; border-radius: 4px; margin-left: 5px; border: 1px solid rgba(255,61,0,0.5);}
   .timer.expired { color: #555; background: rgba(255,255,255,0.1); border-color: #333; }
+  
+  /* Стили для формы выдачи пропуска */
+  .permit-form { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
+  .permit-form input { margin-bottom: 0; width: 60px; padding: 8px; text-align: center;}
+  
   .rowline{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
   .admin-user-card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
   .admin-user-card input { margin-bottom: 5px; padding: 8px; font-size: 13px; }
@@ -65,6 +74,7 @@
 <body>
 <div class="wrap">
 
+  <!-- ЛОГИН -->
   <div class="card" id="login-screen">
     <h2 style="text-align:center;margin-top:0">🪪 BOBOR-ID</h2>
     <input type="email" id="log-email" placeholder="Email">
@@ -73,6 +83,7 @@
     <button class="btn" style="width:100%" onclick="doLogin()">Войти</button>
   </div>
 
+  <!-- АНКЕТА -->
   <div class="card" id="view-form">
     <h2 style="margin-top:0; text-align:center;">Анкета BOBOR-ID</h2>
     <div class="form-avatar" onclick="document.getElementById('form-photo-input').click()">
@@ -90,6 +101,15 @@
     <button class="btn3" style="width:100%; margin-top:5px" onclick="logout()">Выйти</button>
   </div>
 
+  <!-- ЭКРАН ОЖИДАНИЯ -->
+  <div class="card" id="view-waiting">
+    <h2>⏳ ОЖИДАНИЕ</h2>
+    <p>Ваша анкета отправлена на проверку администратору.</p>
+    <p>Пожалуйста, подождите. Как только админ подтвердит ваш BOBOR-ID, паспорт появится здесь.</p>
+    <button class="btn3" onclick="location.reload()" style="margin-top:20px;">Обновить статус</button>
+  </div>
+
+  <!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
   <div id="main-ui" style="display:none">
     <nav>
       <button id="tab-passport" class="on" onclick="switchTab('passport')">Паспорт</button>
@@ -122,7 +142,6 @@
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
           
-          <!-- Только подписи, без картинки -->
           <div class="signatures-container">
             <div class="signatures">
               <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
@@ -148,14 +167,15 @@
         <select id="target-user"></select>
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
+
       <div id="admin-permits-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Выдать пропуск (Админ)</h3>
         <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:20px;">
           <select id="admin-target-user"></select>
-          <div style="display:flex; gap:5px">
-            <button class="btn3" style="flex:1" onclick="adminGivePermit(1)">На 1 час</button>
-            <button class="btn3" style="flex:1" onclick="adminGivePermit(24)">На 1 день</button>
-            <button class="btn3" style="flex:1" onclick="adminGivePermit(8760)">На год</button>
+          <div class="permit-form">
+             <input type="number" id="admin-days" placeholder="Дней" value="0">
+             <input type="number" id="admin-hours" placeholder="Часов" value="1">
+             <button class="btn2" style="flex:1" onclick="adminGivePermit()">Выдать</button>
           </div>
         </div>
         <h3 style="color:var(--red)">Все активные пропуска</h3>
@@ -244,7 +264,10 @@ function doLogin(autoLogin = false) {
       
       document.getElementById('login-screen').style.display = 'none';
       
-      if (!currentUser.photo || !currentUser.age || !currentUser.gender) {
+      // ЛОГИКА ЭКРАНОВ: Ожидание, Анкета или Паспорт
+      if (currentUser.status === 'pending') {
+        document.getElementById('view-waiting').style.display = 'block';
+      } else if (!currentUser.photo || !currentUser.age || !currentUser.gender) {
         document.getElementById('view-form').style.display = 'block';
       } else {
         document.getElementById('main-ui').style.display = 'block';
@@ -336,10 +359,6 @@ function updatePassportUI() {
     statusText.style.color = '#00C878';
     document.getElementById('sig-admin').style.display = 'block';
     document.getElementById('sig-user').style.display = 'block';
-  } else if (currentUser.status === 'pending') {
-    statusText.innerText = 'ПРОВЕРКА';
-    statusText.style.color = '#FFB800';
-    document.getElementById('sig-user').style.display = 'block';
   }
 }
 
@@ -413,12 +432,13 @@ function loadPermitsData() {
       data.forEach(p => {
         const div = document.createElement('div');
         div.className = 'pass-card';
+        // ТЕПЕРЬ ЗДЕСЬ ВВОД ДНЕЙ И ЧАСОВ
         div.innerHTML = `
           <div><div class="pass-name">${p.display_name || p.name}</div><div class="pass-time">просит проход</div></div>
-          <div style="display:flex; gap:5px">
-            <button class="btn2" onclick="approvePermit(${p.id}, 1)">1ч</button>
-            <button class="btn2" onclick="approvePermit(${p.id}, 24)">1д</button>
-            <button class="btn2" onclick="approvePermit(${p.id}, 60)">2.5д</button>
+          <div class="permit-form">
+             <input type="number" id="in-days-${p.id}" placeholder="Дней" value="0">
+             <input type="number" id="in-hours-${p.id}" placeholder="Часов" value="1">
+             <button class="btn2" onclick="approvePermitCustom(${p.id})">Выдать</button>
           </div>`;
         list.appendChild(div);
       });
@@ -486,22 +506,35 @@ function updateTimers() {
   });
 }
 
-function adminGivePermit(hours) {
+// Выдача по кастомному времени (дни + часы)
+function approvePermitCustom(id) {
+  const days = Number(document.getElementById('in-days-'+id).value) || 0;
+  const hours = Number(document.getElementById('in-hours-'+id).value) || 0;
+  const totalHours = (days * 24) + hours;
+
+  if(totalHours <= 0) return alert('Укажите время больше 0');
+
+  fetch('/api/permits/approve', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id, hours: totalHours }) })
+  .then(() => loadPermitsData());
+}
+
+// Выдача админом
+function adminGivePermit() {
   const target = document.getElementById('admin-target-user').value;
+  const days = Number(document.getElementById('admin-days').value) || 0;
+  const hours = Number(document.getElementById('admin-hours').value) || 0;
+  const totalHours = (days * 24) + hours;
+
   if(!target) return alert('Выберите пользователя');
+  if(totalHours <= 0) return alert('Укажите время больше 0');
   
   fetch('/api/permits/request', { 
     method: 'POST', headers: {'Content-Type': 'application/json'}, 
     body: JSON.stringify({ from_email: target, to_email: currentUser.email }) 
   }).then(() => {
-    alert('Запрос создан. Одобрите его в блоке "Запросы на проход" сверху!');
+    alert('Запрос создан. Одобрите его в блоке "Запросы на проход" сверху (там уже выберите дни и часы)!');
     loadPermitsData();
   });
-}
-
-function approvePermit(id, hours) {
-  fetch('/api/permits/approve', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ permit_id: id, hours }) })
-  .then(() => loadPermitsData());
 }
 
 function revokePermit(id) {
@@ -546,12 +579,18 @@ function loadAdminUsers() {
            <input type="file" id="adm-photo-${u.email}" accept="image/*" style="display:none" onchange="adminPhotoUpload('${u.email}', this)">
            <button class="btn2" style="flex:1" onclick="saveAdminEdit('${u.email}')">Сохранить</button>
         </div>
+        ${u.status === 'pending' ? `<button class="btn2" style="width:100%; margin-top:5px; background:var(--green); color:white" onclick="approvePassport('${u.email}')">Подтвердить ID</button>` : ''}
       `;
       list.appendChild(div);
     });
   }).catch(e => {
     document.getElementById('admin-users-list').innerHTML = '<div class="muted" style="color:red">Ошибка загрузки</div>';
   });
+}
+
+function approvePassport(email) {
+  fetch('/api/approve_passport', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ targetEmail: email, adminPass: '1495' }) })
+  .then(() => { alert('ID подтвержден!'); loadAdminUsers(); });
 }
 
 function revokeID(email) {
