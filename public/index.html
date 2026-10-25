@@ -41,7 +41,11 @@
   .label { font-size: 9px; color: #666; text-transform: uppercase; display: block; margin-bottom: 2px; }
   .value { font-size: 14px; font-weight: bold; word-break: break-all; }
   .value-small { font-size: 12px; font-weight: bold; }
-  .signatures { position: absolute; bottom: 20px; right: 20px; display: flex; gap: 15px; }
+  
+  /* Блок с подписями и символом */
+  .signatures-container { position: absolute; bottom: 20px; right: 20px; display: flex; align-items: center; gap: 10px; }
+  .logo-img { width: 45px; height: 45px; opacity: 0.8; }
+  .signatures { display: flex; gap: 15px; }
   .sig-box { width: 50px; height: 40px; border: 1px solid #999; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative;}
   .sig-label { font-size: 8px; color: #666; position: absolute; bottom: -15px; text-align: center; width: 100%; }
   .checkmark { color: #00C878; font-size: 24px; font-weight: bold; display: none; }
@@ -51,11 +55,8 @@
   .pass-name { font-weight: bold; font-size: 16px; color: #fff; }
   .pass-time { font-size: 12px; color: var(--muted); margin-top: 4px; }
   .pass-active { color: var(--green); font-weight: bold; font-size: 12px; border: 1px solid var(--green); padding: 2px 8px; border-radius: 6px; }
-  
-  /* Таймер */
   .timer { font-family: monospace; font-size: 14px; color: #fff; background: rgba(255,61,0,0.2); padding: 2px 6px; border-radius: 4px; margin-left: 5px; border: 1px solid rgba(255,61,0,0.5);}
   .timer.expired { color: #555; background: rgba(255,255,255,0.1); border-color: #333; }
-
   .rowline{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);align-items:center}
   .admin-user-card { background: #111; border: 1px solid #333; border-radius: 10px; padding: 12px; margin-bottom: 10px; }
   .admin-user-card input { margin-bottom: 5px; padding: 8px; font-size: 13px; }
@@ -102,6 +103,7 @@
       </div>
     </nav>
 
+    <!-- ПАСПОРТ -->
     <div id="view-passport">
       <div class="passport">
         <div class="hologram"></div>
@@ -119,14 +121,29 @@
             <div style="flex:1;"><span class="label">Статус</span><span class="value-small" id="u-status" style="color:#FF3D00">---</span></div>
           </div>
           <div class="data-row"><span class="label">Орган выдачи</span><span class="value-small">BOBOR GOV</span></div>
-          <div class="signatures">
-            <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
-            <div class="sig-box"><span class="checkmark" id="sig-user">✔</span><span class="sig-label">ЮЗЕР</span></div>
+          
+          <!-- Блок с логотипом и подписями -->
+          <div class="signatures-container">
+            <!-- Логотип в Base64 (SVG) -->
+            <svg class="logo-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 0 L61 34 L98 34 L68 56 L79 90 L50 68 L21 90 L32 56 L2 34 L39 34 Z" fill="none" stroke="#000" stroke-width="5"/>
+              <circle cx="50" cy="50" r="26" fill="#e0e0e0" stroke="#000" stroke-width="5"/>
+              <circle cx="40" cy="48" r="6" fill="#000"/>
+              <circle cx="60" cy="48" r="6" fill="#000"/>
+              <polygon points="50,56 46,64 54,64" fill="#000"/>
+              <path d="M40 70 Q50 75 60 70" fill="none" stroke="#000" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+
+            <div class="signatures">
+              <div class="sig-box"><span class="checkmark" id="sig-admin">✔</span><span class="sig-label">АДМИН</span></div>
+              <div class="sig-box"><span class="checkmark" id="sig-user">✔</span><span class="sig-label">ЮЗЕР</span></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- ПРОПУСКА -->
     <div id="view-permits" style="display:none">
       <div id="incoming-section" style="display:none; margin-bottom:20px;">
         <h3 style="color:var(--lime)">Запросы на проход (у вас просят)</h3>
@@ -142,7 +159,6 @@
         <button class="btn2" style="width:100%" onclick="requestPermit()">Отправить запрос</button>
       </div>
 
-      <!-- ПАНЕЛЬ АДМИНА В ПРОПУСКАХ -->
       <div id="admin-permits-panel" style="display:none; border-top:1px solid #333; padding-top:20px;">
         <h3 style="color:var(--red)">Выдать пропуск (Админ)</h3>
         <div style="background:#111; padding:15px; border-radius:10px; margin-bottom:20px;">
@@ -159,6 +175,7 @@
       </div>
     </div>
 
+    <!-- ПРОФИЛЬ -->
     <div id="view-profile" style="display:none">
       <div style="background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)">
         <h2 style="margin-top:0">Профиль</h2>
@@ -169,6 +186,7 @@
       </div>
     </div>
 
+    <!-- АДМИНКА -->
     <div id="view-admin" style="display:none">
       <h3 style="color:var(--lime)">Управление BOBOR-ID</h3>
       <div id="admin-users-list"></div>
@@ -378,7 +396,6 @@ function requestPermit() {
   .then(() => alert('Запрос отправлен!'));
 }
 
-// ЛОГИКА ТАЙМЕРА
 function getTimerHTML(expires_at) {
   if (!expires_at) return '<span class="timer expired">Бессрочно</span>';
   const exp = new Date(expires_at).getTime();
@@ -399,7 +416,6 @@ function getTimerHTML(expires_at) {
 }
 
 function loadPermitsData() {
-  // 1. Входящие
   fetch('/api/permits/incoming/' + currentUser.email).then(r => r.json()).then(data => {
     const sec = document.getElementById('incoming-section');
     const list = document.getElementById('incoming-list');
@@ -421,7 +437,6 @@ function loadPermitsData() {
     } else sec.style.display = 'none';
   });
 
-  // 2. Мои активные
   fetch('/api/permits/active/' + currentUser.email).then(r => r.json()).then(data => {
     const list = document.getElementById('my-permits-list');
     list.innerHTML = '';
@@ -436,7 +451,6 @@ function loadPermitsData() {
     });
   });
 
-  // 3. Админ - все пропуска
   if (isAdmin) {
     fetch('/api/permits/all_active').then(r => r.json()).then(data => {
       const list = document.getElementById('admin-permits-list');
@@ -456,7 +470,6 @@ function loadPermitsData() {
     });
   }
 
-  // Запускаем таймер обновления
   if(timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(updateTimers, 1000);
 }
@@ -485,40 +498,14 @@ function updateTimers() {
   });
 }
 
-// АДМИН: ВЫДАТЬ ПРОПУСК НАПРЯМУЮ
 function adminGivePermit(hours) {
   const target = document.getElementById('admin-target-user').value;
   if(!target) return alert('Выберите пользователя');
-  
-  // Отправляем запрос от админа, но статус сразу 'approved'
-  fetch('/api/permits/request', { 
-    method: 'POST', headers: {'Content-Type': 'application/json'}, 
-    body: JSON.stringify({ from_email: currentUser.email, to_email: target }) 
-  }).then(r => r.json()).then(data => {
-    // Нам нужно получить ID только что созданного запроса, чтобы сразу его одобрить.
-    // Но так как API не возвращает ID, проще послать запрос через /admin_edit_user? Нет, сделаем проще:
-    // Вызовем запрос, подождем, и найдем его в списке входящих у target, но мы не можем.
-    // Поэтому, для упрощения, админ просто "дарит" пропуск.
-    // Но у нас API не позволяет. Ладно, поменяем API? Нет, лучше используем тот же API.
-  });
-  
-  // Вместо этого используем прямой вызов из сервера. 
-  // Так как в server.js нет спец API для админа, мы просто сделаем вид, что это запрос от админа,
-  // и админ сам себе его одобрит (так как админ - отправитель, а target - получатель).
-  // Нет, проще: сделаем запрос от target к target? Нет, так не работает.
-  // Сделаем запрос от админа к target, а потом сразу одобрим все pending, где from=admin, to=target.
-  
-  // *Упрощение:* Для админа сделаем прямую выдачу через fetch, но нам нужно ID.
-  // Так как я не менял server.js для прямого API, я просто сделаю вид, что это запрос от другого юзера.
-  // На самом деле, в server.js нужно добавить API. Я не могу менять сервер сейчас (ты не пришлешь новый).
-  // Поэтому просто сделаю запрос, который сразу одобряется.
   
   fetch('/api/permits/request', { 
     method: 'POST', headers: {'Content-Type': 'application/json'}, 
     body: JSON.stringify({ from_email: target, to_email: currentUser.email }) 
   }).then(() => {
-    // Это создаст запрос от target к админу. Админ зайдет и одобрит его в панели пропусков (вверху).
-    // Прости, иначе никак, не меняя сервер.
     alert('Запрос создан. Одобрите его в блоке "Запросы на проход" сверху!');
     loadPermitsData();
   });
@@ -539,7 +526,6 @@ function loadAdminUsers() {
   fetch('/api/admin_all_users').then(r => r.json()).then(users => {
     const list = document.getElementById('admin-users-list');
     list.innerHTML = '';
-    
     if (users.length === 0) {
       list.innerHTML = '<div class="muted">Пользователей нет.</div>';
       return;
